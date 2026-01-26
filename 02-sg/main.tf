@@ -1,0 +1,199 @@
+module "mongodb" {
+  source         = "../../terraform-aws-security-group"
+  vpc_id         = data.aws_ssm_parameter.vpc_id.value
+  sg_description = "Security group for MongoDB servers"
+  common_tags    = var.common_tags
+  sg_tags        = var.sg_tags
+  project_name   = var.project_name
+  environment    = var.environment
+  sg_name        = "mongodb-sg"
+  # sg_ingress_rules = var.mogodb_ingress_rules
+}
+
+module "redis" {
+  source         = "../../terraform-aws-security-group"
+  vpc_id         = data.aws_ssm_parameter.vpc_id.value
+  sg_description = "Security group for Redis servers"
+  common_tags    = var.common_tags
+  sg_tags        = var.sg_tags
+  project_name   = var.project_name
+  environment    = var.environment
+  sg_name        = "redis-sg"
+  # sg_ingress_rules = var.mogodb_ingress_rules
+}
+
+module "mysql" {
+  source         = "../../terraform-aws-security-group"
+  vpc_id         = data.aws_ssm_parameter.vpc_id.value
+  sg_description = "Security group for MySQL servers"
+  common_tags    = var.common_tags
+  sg_tags        = var.sg_tags
+  project_name   = var.project_name
+  environment    = var.environment
+  sg_name        = "mysql-sg"
+  # sg_ingress_rules = var.mysql_ingress_rules
+}
+
+module "rabbitmq" {
+  source         = "../../terraform-aws-security-group"
+  vpc_id         = data.aws_ssm_parameter.vpc_id.value
+  sg_description = "Security group for RabbitMQ servers"
+  common_tags    = var.common_tags
+  sg_tags        = var.sg_tags
+  project_name   = var.project_name
+  environment    = var.environment
+  sg_name        = "rabbitmq-sg"
+  # sg_ingress_rules = var.mogodb_ingress_rules
+}
+
+module "cart" {
+  source         = "../../terraform-aws-security-group"
+  vpc_id         = data.aws_ssm_parameter.vpc_id.value
+  sg_description = "Security group for cart servers"
+  common_tags    = var.common_tags
+  sg_tags        = var.sg_tags
+  project_name   = var.project_name
+  environment    = var.environment
+  sg_name        = "cart-sg"
+  # sg_ingress_rules = var.mogodb_ingress_rules
+}
+
+module "shipping" {
+  source         = "../../terraform-aws-security-group"
+  vpc_id         = data.aws_ssm_parameter.vpc_id.value
+  sg_description = "Security group for shipping servers"
+  common_tags    = var.common_tags
+  sg_tags        = var.sg_tags
+  project_name   = var.project_name
+  environment    = var.environment
+  sg_name        = "shipping-sg"
+  # sg_ingress_rules = var.mogodb_ingress_rules
+}
+
+module "payments" {
+  source         = "../../terraform-aws-security-group"
+  vpc_id         = data.aws_ssm_parameter.vpc_id.value
+  sg_description = "Security group for payments servers"
+  common_tags    = var.common_tags
+  sg_tags        = var.sg_tags
+  project_name   = var.project_name
+  environment    = var.environment
+  sg_name        = "payments-sg"
+  # sg_ingress_rules = var.mogodb_ingress_rules
+}
+
+module "rating" {
+  source         = "../../terraform-aws-security-group"
+  vpc_id         = data.aws_ssm_parameter.vpc_id.value
+  sg_description = "Security group for rating servers"
+  common_tags    = var.common_tags
+  sg_tags        = var.sg_tags
+  project_name   = var.project_name
+  environment    = var.environment
+  sg_name        = "rating-sg"
+  # sg_ingress_rules = var.catalogue_ingress_rules
+}
+
+module "user" {
+  source         = "../../terraform-aws-security-group"
+  vpc_id         = data.aws_ssm_parameter.vpc_id.value
+  sg_description = "Security group for user servers"
+  common_tags    = var.common_tags
+  sg_tags        = var.sg_tags
+  project_name   = var.project_name
+  environment    = var.environment
+  sg_name        = "user-sg"
+  # sg_ingress_rules = var.user_ingress_rules
+}
+
+module "catalogue" {
+  source         = "../../terraform-aws-security-group"
+  vpc_id         = data.aws_ssm_parameter.vpc_id.value
+  sg_description = "Security group for catalogue servers"
+  common_tags    = var.common_tags
+  sg_tags        = var.sg_tags
+  project_name   = var.project_name
+  environment    = var.environment
+  sg_name        = "catalogue-sg"
+  # sg_ingress_rules = var.catalogue_ingress_rules
+}
+
+module "web" {
+  source         = "../../terraform-aws-security-group"
+  vpc_id         = data.aws_ssm_parameter.vpc_id.value
+  sg_description = "Security group for web servers"
+  common_tags    = var.common_tags
+  sg_tags        = var.sg_tags
+  project_name   = var.project_name
+  environment    = var.environment
+  sg_name        = "web-sg"
+  # sg_ingress_rules = var.web_ingress_rules
+}
+
+resource "aws_security_group_rule" "mongodb_from_catalogue" {
+  source_security_group_id = module.catalogue.sg_id
+  type              = "ingress"
+  from_port         = 27017
+  to_port           = 27017
+  protocol          = "tcp"
+  security_group_id = module.mongodb.sg_id
+}
+
+resource "aws_security_group_rule" "mongodb_from_user" {
+  source_security_group_id = module.user.sg_id
+  type              = "ingress"
+  from_port         = 27017
+  to_port           = 27017
+  protocol          = "tcp"
+  security_group_id = module.mongodb.sg_id
+}
+
+resource "aws_security_group_rule" "redis_from_cart" {
+  source_security_group_id = module.cart.sg_id
+  type              = "ingress"
+  from_port         = 6379
+  to_port           = 6379
+  protocol          = "tcp"
+  security_group_id = module.redis.sg_id
+}
+
+resource "aws_security_group_rule" "redis_from_user" {
+  source_security_group_id = module.user.sg_id
+  type              = "ingress"
+  from_port         = 6379
+  to_port           = 6379
+  protocol          = "tcp"
+  security_group_id = module.redis.sg_id
+}
+
+# resource "aws_security_group_rule" "mysql_from_shipping" {
+#   source_security_group_id = module.shipping.sg_id
+#   type              = "ingress"
+#   from_port         = 3306
+#   to_port           = 3306
+#   protocol          = "tcp"
+#   security_group_id = module.mysql.sg_id
+# }
+
+# resource "aws_security_group_rule" "mysql_from_rating" {
+#   source_security_group_id = module.rating.sg_id
+#   type              = "ingress"
+#   from_port         = 3306
+#   to_port           = 3306
+#   protocol          = "tcp"
+#   security_group_id = module.mysql.sg_id
+# }
+
+# resource "aws_security_group_rule" "rabbitmq_from_payments" {
+#   source_security_group_id = module.payments.sg_id
+#   type              = "ingress"
+#   from_port         = 5672
+#   to_port           = 5672
+#   protocol          = "tcp"
+#   security_group_id = module.mysql.sg_id
+# }
+
+
+
+
+
