@@ -130,6 +130,18 @@ module "web" {
   # sg_ingress_rules = var.web_ingress_rules
 }
 
+module "openvpn" {
+  source         = "../../terraform-aws-security-group"
+  vpc_id         = data.aws_vpc.default.id
+  sg_description = "Security group for openvpn servers"
+  common_tags    = var.common_tags
+  sg_tags        = var.sg_tags
+  project_name   = var.project_name
+  environment    = var.environment
+  sg_name        = "openvpn-sg"
+  # sg_ingress_rules = var.web_ingress_rules
+}
+
 resource "aws_security_group_rule" "mongodb_from_catalogue" {
   source_security_group_id = module.catalogue.sg_id
   type              = "ingress"
@@ -166,33 +178,41 @@ resource "aws_security_group_rule" "redis_from_user" {
   security_group_id = module.redis.sg_id
 }
 
-# resource "aws_security_group_rule" "mysql_from_shipping" {
-#   source_security_group_id = module.shipping.sg_id
-#   type              = "ingress"
-#   from_port         = 3306
-#   to_port           = 3306
-#   protocol          = "tcp"
-#   security_group_id = module.mysql.sg_id
-# }
+resource "aws_security_group_rule" "mysql_from_shipping" {
+  source_security_group_id = module.shipping.sg_id
+  type              = "ingress"
+  from_port         = 3306
+  to_port           = 3306
+  protocol          = "tcp"
+  security_group_id = module.mysql.sg_id
+}
 
-# resource "aws_security_group_rule" "mysql_from_rating" {
-#   source_security_group_id = module.rating.sg_id
-#   type              = "ingress"
-#   from_port         = 3306
-#   to_port           = 3306
-#   protocol          = "tcp"
-#   security_group_id = module.mysql.sg_id
-# }
+resource "aws_security_group_rule" "mysql_from_rating" {
+  source_security_group_id = module.rating.sg_id
+  type              = "ingress"
+  from_port         = 3306
+  to_port           = 3306
+  protocol          = "tcp"
+  security_group_id = module.mysql.sg_id
+}
 
-# resource "aws_security_group_rule" "rabbitmq_from_payments" {
-#   source_security_group_id = module.payments.sg_id
-#   type              = "ingress"
-#   from_port         = 5672
-#   to_port           = 5672
-#   protocol          = "tcp"
-#   security_group_id = module.mysql.sg_id
-# }
+resource "aws_security_group_rule" "rabbitmq_from_payments" {
+  source_security_group_id = module.payments.sg_id
+  type              = "ingress"
+  from_port         = 5672
+  to_port           = 5672
+  protocol          = "tcp"
+  security_group_id = module.mysql.sg_id
+}
 
+resource "aws_security_group_rule" "openvpn" {
+  type              = "ingress"
+  from_port         = 0
+  to_port           = 65535
+  protocol          = "tcp"
+  cidr_blocks = ["0.0.0.0/0"]
+  security_group_id = module.openvpn.sg_id
+}
 
 
 
