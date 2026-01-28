@@ -17,3 +17,7 @@ variable "environment" {
 variable "ec2_tags" {
   default = {}
 }
+
+variable "key_name" {
+  default = "harshith"
+}

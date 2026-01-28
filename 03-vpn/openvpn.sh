@@ -1,5 +1,6 @@
 #!/bin/bash
 # non-interactive or headless installation
+sudo su -
 export AUTO_INSTALL=y
 export ENDPOINT=$(curl http://169.254.169.254/latest/meta-data/public-ipv4)
 export APPROVE_INSTALL=y
@@ -14,4 +15,4 @@ export CLIENT=devops76s
 export PASS=1
 curl -O https://raw.githubusercontent.com/angristan/openvpn-install/master/openvpn-install.sh
 chmod +x openvpn-install.sh
-./openvpn-install.sh
+./openvpn-install.sh install

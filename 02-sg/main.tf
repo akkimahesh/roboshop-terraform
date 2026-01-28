@@ -82,7 +82,7 @@ module "payments" {
   # sg_ingress_rules = var.mogodb_ingress_rules
 }
 
-module "rating" {
+module "ratings" {
   source         = "../../terraform-aws-security-group"
   vpc_id         = data.aws_ssm_parameter.vpc_id.value
   sg_description = "Security group for rating servers"
@@ -151,6 +151,15 @@ resource "aws_security_group_rule" "mongodb_from_catalogue" {
   security_group_id = module.mongodb.sg_id
 }
 
+# resource "aws_security_group_rule" "mongodb_from_openvpn" {
+#   type              = "ingress"
+#   from_port         = 22
+#   to_port           = 22
+#   protocol          = "tcp"
+#   security_group_id = module.mongodb.sg_id
+#   cidr_blocks = [data.aws_subnet.selected.cidr_block]
+# }
+
 resource "aws_security_group_rule" "mongodb_from_user" {
   source_security_group_id = module.user.sg_id
   type              = "ingress"
@@ -188,7 +197,7 @@ resource "aws_security_group_rule" "mysql_from_shipping" {
 }
 
 resource "aws_security_group_rule" "mysql_from_rating" {
-  source_security_group_id = module.rating.sg_id
+  source_security_group_id = module.ratings.sg_id
   type              = "ingress"
   from_port         = 3306
   to_port           = 3306
@@ -209,11 +218,71 @@ resource "aws_security_group_rule" "openvpn" {
   type              = "ingress"
   from_port         = 0
   to_port           = 65535
-  protocol          = "tcp"
+  protocol          = "all"
   cidr_blocks = ["0.0.0.0/0"]
   security_group_id = module.openvpn.sg_id
 }
 
+resource "aws_security_group_rule" "catalogue_from_web" {
+  source_security_group_id = module.web.sg_id
+  type              = "ingress"
+  from_port         = 8080
+  to_port           = 8080
+  protocol          = "tcp"
+  security_group_id = module.catalogue.sg_id
+}
 
+resource "aws_security_group_rule" "cart_from_web" {
+  source_security_group_id = module.web.sg_id
+  type              = "ingress"
+  from_port         = 8080
+  to_port           = 8080
+  protocol          = "tcp"
+  security_group_id = module.cart.sg_id
+}
 
+resource "aws_security_group_rule" "user_from_web" {
+  source_security_group_id = module.web.sg_id
+  type              = "ingress"
+  from_port         = 8080
+  to_port           = 8080
+  protocol          = "tcp"
+  security_group_id = module.user.sg_id
+}
+
+resource "aws_security_group_rule" "shipping_from_web" {
+  source_security_group_id = module.web.sg_id
+  type              = "ingress"
+  from_port         = 8080
+  to_port           = 8080
+  protocol          = "tcp"
+  security_group_id = module.shipping.sg_id
+}
+
+resource "aws_security_group_rule" "payments_from_web" {
+  source_security_group_id = module.web.sg_id
+  type              = "ingress"
+  from_port         = 8080
+  to_port           = 8080
+  protocol          = "tcp"
+  security_group_id = module.payments.sg_id
+}
+
+resource "aws_security_group_rule" "ratings_from_web" {
+  source_security_group_id = module.web.sg_id
+  type              = "ingress"
+  from_port         = 8080
+  to_port           = 8080
+  protocol          = "tcp"
+  security_group_id = module.ratings.sg_id
+}
+
+resource "aws_security_group_rule" "web" {
+  type              = "ingress"
+  from_port         = 80
+  to_port           = 80
+  protocol          = "tcp"
+  cidr_blocks = ["0.0.0.0/0"]
+  security_group_id = module.catalogue.sg_id
+}
 

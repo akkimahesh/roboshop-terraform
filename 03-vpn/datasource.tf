@@ -1,11 +1,11 @@
 
-data "aws_ami" "centos8" {
+data "aws_ami" "rhel" {
   most_recent = true
-  owners      = ["973714476881"]
+  owners      = ["099720109477"]
 
   filter {
     name   = "name"
-    values = ["Centos-8-DevOps-Practice"]
+    values = ["ubuntu/images/hvm-ssd-gp3/ubuntu-noble-24.04-amd64-server-20251212"]
   }
 
   filter {
@@ -26,6 +26,11 @@ data "aws_vpc" "default" {
 data "aws_subnet" "selected" {
   vpc_id = data.aws_vpc.default.id
 }
+
+output "public_subnets_cidr" {
+  value = data.aws_subnet.selected.cidr_block
+}
+
 
 # output "subnet_id" {
 #   value = data.aws_subnet.selected.id

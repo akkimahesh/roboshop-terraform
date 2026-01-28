@@ -17,3 +17,13 @@ variable "environment" {
 variable "ec2_tags" {
   default = {}
 }
+
+variable "zone_id" {
+  type    = string
+  default = "Z089605714CNYBII371R5"
+}
+
+variable "zone_name" {
+  type    = string
+  default = "maheshakki.shop"
+}
