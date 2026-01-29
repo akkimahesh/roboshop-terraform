@@ -151,14 +151,14 @@ resource "aws_security_group_rule" "mongodb_from_catalogue" {
   security_group_id = module.mongodb.sg_id
 }
 
-# resource "aws_security_group_rule" "mongodb_from_openvpn" {
-#   type              = "ingress"
-#   from_port         = 22
-#   to_port           = 22
-#   protocol          = "tcp"
-#   security_group_id = module.mongodb.sg_id
-#   cidr_blocks = [data.aws_subnet.selected.cidr_block]
-# }
+resource "aws_security_group_rule" "mongodb_from_openvpn" {
+  source_security_group_id = module.openvpn.sg_id
+  type              = "ingress"
+  from_port         = 22
+  to_port           = 22
+  protocol          = "tcp"
+  security_group_id = module.mongodb.sg_id
+}
 
 resource "aws_security_group_rule" "mongodb_from_user" {
   source_security_group_id = module.user.sg_id
