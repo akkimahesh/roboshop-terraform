@@ -1,12 +1,11 @@
 module "openvpn_instance" {
-  source  = "terraform-aws-modules/ec2-instance/aws"
-   name = "${local.ec2_name}-openvpn"
-  ami                    = data.aws_ami.rhel.id
+  source                 = "terraform-aws-modules/ec2-instance/aws"
+  name                   = "${local.ec2_name}-openvpn"
+  ami                    = data.aws_ami.centos8.id
   instance_type          = "t2.micro"
-  key_name = var.key_name
   vpc_security_group_ids = [data.aws_ssm_parameter.openvpn_sg_id.value]
   subnet_id              = data.aws_subnet.selected.id
-  user_data = file("openvpn.sh")
+  user_data              = file("openvpn.sh")
 
   tags = merge(
     var.common_tags,
@@ -17,26 +16,28 @@ module "openvpn_instance" {
   )
 }
 
-output "public_ip" {
-    value = module.openvpn_instance.public_ip
-  
-}
+resource "null_resource" "openvpn_provisioners" {
 
-module "vpn" {
-  source                 = "terraform-aws-modules/ec2-instance/aws"
-  ami = data.aws_ami.centos8.id
-  name                   = "${local.ec2_name}-vpn"
-  instance_type          = "t3.small"
-  vpc_security_group_ids = [data.aws_ssm_parameter.vpn_sg_id.value]
-  subnet_id              = data.aws_subnet.selected.id
-  user_data = file("openvpn.sh")
-  tags = merge(
-    var.common_tags,
-    {
-      Component = "vpn"
-    },
-    {
-      Name = "${local.ec2_name}-vpn"
-    }
-  )
+  depends_on = [module.openvpn_instance]
+
+  provisioner "local-exec" {
+    command = "echo The server's IP address is ${module.openvpn_instance.public_ip}"
+  }
+
+  connection {
+    type        = "ssh"
+    user        = "centos"
+    host        = module.openvpn_instance.public_ip
+    password = "DevOps321"
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "echo Hello, World! > /home/centos/hello.txt",
+      "curl -O https://raw.githubusercontent.com/angristan/openvpn-install/master/openvpn-install.sh",
+      "chmod +x openvpn-install.sh",
+      "sudo ./openvpn-install.sh install"
+
+    ]
+  }
 }

@@ -1,11 +1,11 @@
 
-data "aws_ami" "rhel" {
+data "aws_ami" "centos8" {
   most_recent = true
-  owners      = ["099720109477"]
+  owners      = ["973714476881"]
 
   filter {
     name   = "name"
-    values = ["ubuntu/images/hvm-ssd-gp3/ubuntu-noble-24.04-amd64-server-20251212"]
+    values = ["Centos-8-DevOps-Practice"]
   }
 
   filter {
@@ -28,13 +28,13 @@ data "aws_subnet" "selected" {
 }
 
 output "public_subnets_cidr" {
-  value = data.aws_subnet.selected.cidr_block
+  value = data.aws_subnet.selected.id
 }
 
 
 # output "subnet_id" {
 #   value = data.aws_subnet.selected.id
-  
+
 # }
 
 data "aws_ssm_parameter" "openvpn_sg_id" {
